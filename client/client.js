@@ -8,9 +8,10 @@ var windowy = 600;
 
 
 //// INITIALIZERS ////
+var hud = document.getElementById("hud");
 var current_user;
 Meteor.startup(function() {
-  current_user = Ships.insert({name: "Test", x: 0, y: 0, health: 100, radius: 5, timeout: 2000});
+  current_user = Ships.insert({name: "Test", x: 0, y: 0, health: 100, radius: 5, timeout: 120000});
   Session.set("current_user", current_user);
 })
 
@@ -61,7 +62,7 @@ function run() {
     UpdateBullets();
     CheckCollisions();
 
-    WriteHealth();
+    //WriteHealth();
 
     // Shoot bullets with mouse clicks
     window.onmousedown = function() {
@@ -111,15 +112,16 @@ function CheckCollisions() {
   allShips = Ships.find().fetch();
   for(var i = 0; i < allBullets.length; i++) {
     for(var j = 0; j < allEnemies.length; j++) {
-      if(collide(allBullets[i],allEnemies[j]) && allBullets[i].side === "friendly") {
+      if(collide(allBullets[i],allEnemies[j]) && allBullets[i].type === "friendly") {
+        bulletContact(allBullets[i].x, allBullets[i].y);
         Enemies.update(allEnemies[j]._id, {$inc: {health: (-1 * allBullets[i].damage)}});
         Bullets.remove(allBullets[i]._id);
         //Ships.update(Session.get("current_user"), {$inc: {health: 5}});
-        //console.log("Hit - points to " + Session.get("current_user"));
       }
     }
     for(var k = 0; k < allShips.length; k++) {
-      if(collide(allBullets[i],allShips[k]) && allBullets[i].side === "enemy") {
+      if(collide(allBullets[i],allShips[k]) && allBullets[i].type === "enemy") {
+        bulletContact(allBullets[i].x, allBullets[i].y);
         Ships.update(allShips[k]._id, {$inc: {health: (-1 * allBullets[i].damage)}});
         Bullets.remove(allBullets[i]._id);
       }
@@ -127,13 +129,19 @@ function CheckCollisions() {
   }
 }
 
+function WriteHealth() {
+  allShips = Ships.find().fetch();
+  for (var i = 0; i < allShips.length; i++) {
+    hud.innerHTML = allShips[i].health;
+  }
+}
 
-function fireBullet(friendlyOrEnemy, velocity, damage) {
-  Bullets.insert({side: friendlyOrEnemy, damage: damage, x: x_percent, y: y_percent, x_vel: velocity[0], y_vel: velocity[1], radius: 1});
+function fireBullet(type, velocity, damage) {
+  Bullets.insert({type: type, damage: damage, x: x_percent, y: y_percent, x_vel: velocity[0], y_vel: velocity[1], radius: 1});
 }
 
 function bulletContact(x,y) {
-
+  Bullets.insert({type: "hit", damage: 0, x: x, y: y});
 }
 
 Template.players.ships = function() {
@@ -148,6 +156,6 @@ Template.bullets.bullets = function() {
   return Bullets.find({});
 }
 
-//Template.hud.health = function() {
-//  return Ships.findOne(Session.get("current_user")).health;
-//}
+Template.hud.health = function() {
+  return Ships.findOne(Session.get("current_user")).health;
+}

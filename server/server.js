@@ -45,6 +45,7 @@ function serverLoop() {
   Fiber(function() {
     // Clean up all objects that have become out of scope
     Bullets.remove({$or: [{x: {$lt: -10}}, {x: {$gt: 110}}]});
+    Bullets.remove({type: "hit"});
     Ships.remove({health: {$lte: 0}});
     Ships.remove({timeout: {$lte: 0}});
     Enemies.remove({health: {$lte: 0}});
@@ -107,6 +108,6 @@ function EnemiesShoot() {
   }
 }
 
-function fireBullet(friendlyOrEnemy, position, velocity, damage) {
-  Bullets.insert({side: friendlyOrEnemy, damage: damage, x: position[0], y: position[1], x_vel: velocity[0], y_vel: velocity[1], radius: 1});
+function fireBullet(type, position, velocity, damage) {
+  Bullets.insert({type: type, damage: damage, x: position[0], y: position[1], x_vel: velocity[0], y_vel: velocity[1], radius: 1});
 }
