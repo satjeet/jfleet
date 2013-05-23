@@ -1,0 +1,68 @@
+body {
+  background-color: #000000;
+  font-family: "Trebuchet MS";
+}
+
+.ship {
+  background-image: url('/spaceship.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: fixed;
+  display: block;
+  width: 10%;
+  height: 11%;
+  margin-left: -5%;
+  margin-top: -3%;
+  color: #ffffff;
+  font-size: 0.6em;
+}
+
+.bullet {
+  position: fixed;
+  display: block;
+}
+
+.friendly {
+  background-color: #00aaff;
+  width: 30px;
+  height: 2px;
+  margin-left: -15px;
+  margin-top: -1px;
+}
+
+.enemy {
+  background-color: #ff0000;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  margin-top: -2.5px;
+}
+
+.enemy_ship {
+  background-image: url('/nightraider.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: fixed;
+  display: block;
+  width: 10%;
+  height: 11%;
+  margin-left: -5%;
+  margin-top: -5%;;
+  font-size: 0.6em;
+  color: #ffffff;
+}
+
+#hud {
+  position: fixed;
+  display: inline-block;
+  top: 5px;
+  left: 5px;
+}
+
+.health {
+  color: #ff0000;
+  margin-left: -1%;
+  margin-top: -1%;
+}
