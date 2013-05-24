@@ -1,0 +1,6 @@
+## TODO ##
+
+Change everything back to pixels from percents
+Figure out why stuff on the deployment server is not getting removed by the server loop
+Run game in an iframe
+Create graphics for the game

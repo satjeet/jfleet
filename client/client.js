@@ -1,9 +1,10 @@
 //// RUN CONSTANTS ////
-var framerate = 50;  // x frames per second
-var friendlyBulletspeed = 100;
-var enemyBulletSpeed = 80;
+var framerate = 60;  // x frames per second
+var friendlyBulletspeed = 80;
+var playerTimeout = 1200;  // Player timeout in deciseconds
+var playerRadius = 50;
 
-var windowx = 960;
+var windowx = 1000;
 var windowy = 600;
 
 
@@ -11,12 +12,12 @@ var windowy = 600;
 var hud = document.getElementById("hud");
 var current_user;
 Meteor.startup(function() {
-  current_user = Ships.insert({name: "Test", x: 0, y: 0, health: 100, radius: 5, timeout: 120000});
+  current_user = Ships.insert({name: "Test", x: 0, y: 0, health: 100, radius: playerRadius, timeout: playerTimeout});
   Session.set("current_user", current_user);
 })
 
-var x_percent = 0;
-var y_percent = 0;
+var current_x = 0;
+var current_y = 0;
 var last_x = 0;
 var last_y = 0;
 
@@ -25,7 +26,7 @@ var last_y = 0;
 //// MAIN RUN LOOP ////
 var mousePos;
 window.onmousemove = handleMouseMove;
-setInterval(run, 100);
+Meteor.setInterval(run, 100);
 
 
 
@@ -45,19 +46,19 @@ function run() {
     windowHeight = window.innerHeight;
 
     // Convert x & y coordinates to percentages to scale for all screens
-    x_percent = (mousePos.x / windowWidth) * 100;
-    y_percent = (mousePos.y / windowHeight) * 100;
+    current_x = mousePos.x;
+    current_y = mousePos.y;
 
     // Reset the inactivity timer if there is movement
-    if(last_x != x_percent || last_y != y_percent) {
-      Ships.update(Session.get("current_user"), {$set: {timeout: 100}});
+    if(last_x != current_x || last_y != current_y) {
+      Ships.update(Session.get("current_user"), {$set: {timeout: playerTimeout}});
     }
 
     // Update current user's ship's location to follow the mouse
-    Ships.update(Session.get("current_user"), {$set: {x: x_percent, y: y_percent}});
+    Ships.update(Session.get("current_user"), {$set: {x: current_x, y: current_y}});
 
-    last_x = x_percent;
-    last_y = y_percent;
+    last_x = current_x;
+    last_y = current_y;
 
     UpdateBullets();
     CheckCollisions();
@@ -67,7 +68,7 @@ function run() {
     // Shoot bullets with mouse clicks
     window.onmousedown = function() {
       if(Ships.findOne(Session.get("current_user"))) {
-        fireBullet("friendly", [7,0], 15);
+        fireBullet("friendly", [friendlyBulletspeed,0], 15);
       }
     }
   }
@@ -137,7 +138,7 @@ function WriteHealth() {
 }
 
 function fireBullet(type, velocity, damage) {
-  Bullets.insert({type: type, damage: damage, x: x_percent, y: y_percent, x_vel: velocity[0], y_vel: velocity[1], radius: 1});
+  Bullets.insert({type: type, damage: damage, x: current_x, y: current_y, x_vel: velocity[0], y_vel: velocity[1], radius: 1});
 }
 
 function bulletContact(x,y) {

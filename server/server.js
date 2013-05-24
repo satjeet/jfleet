@@ -1,23 +1,30 @@
 //// CONTSANTS & DEFINITIONS ////
 Fiber = Npm.require("fibers");
 
-var serverInterval = 100;  // Server run loop interval
+var serverInterval = 100;  // Server run loop interval in milliseconds
 var spawnEnemyInterval = 1500;
+var enemySpeed_min = 1;
+var enemySpeed_max = 15;
+var enemyRadius = 50;
+var enemyBulletSpeed = 50;
+var enemyBulletSpread = 15;
 
 // Spawn boundaries for randomly spawned enemies
-var spawnBound_xMin = 50;
-var spawnBound_xMax = 90;
-var spawnBound_yMin = 10;
-var spawnBound_yMax = 90;
+// Playing field is 1000x600
+var spawnBound_xMin = 500;
+var spawnBound_xMax = 900;
+var spawnBound_yMin = 100;
+var spawnBound_yMax = 500;
 
 // Temporary //
 var x_rand = 0;
 var y_rand = 0;
 var x_vel = 0;
 var y_vel = 0;
-setInterval(calculateRandomValues, 1100);
 
-function calculateRandomValues() {
+// Calculates random ship vector movements
+Meteor.setInterval(calculateRandomVelocity, 1100);
+function calculateRandomVelocity() {
   x_rand = Math.random()*2 - 1;
   y_rand = Math.random()*2 - 1;
 }
@@ -39,18 +46,19 @@ Meteor.publish("enemy_bulets", function () {
 
 
 //// SERVER RUN LOOP ////
-setInterval(serverLoop, serverInterval);
+Meteor.setInterval(serverLoop, serverInterval);
 
 function serverLoop() {
-  Fiber(function() {
+  //Fiber(function() {
     // Clean up all objects that have become out of scope
-    Bullets.remove({$or: [{x: {$lt: -10}}, {x: {$gt: 110}}]});
-    Bullets.remove({type: "hit"});
-    Ships.remove({health: {$lte: 0}});
+    // For some reason this doesn't seem to be working on the deployed server
+    Bullets.remove({$or: [{x: {$lt: -10}}, {x: {$gt: 1010}}]});
+    Bullets.remove({type: "hit"});  // Might need to run for loop check
+    Ships.remove({health: {$lte: 0}}); // Might need to run for loop check
     Ships.remove({timeout: {$lte: 0}});
     Enemies.remove({health: {$lte: 0}});
     Enemies.remove({timeout: {$lte: 0}});
-    Enemies.remove({$or: [{x: {$lt: 0}}, {x: {$gt: 105}}, {y: {$lt: -5}}, {y: {$gt: 105}}]});
+    Enemies.remove({$or: [{x: {$lt: -50}}, {x: {$gt: 1050}}, {y: {$lt: -50}}, {y: {$gt: 650}}]});
 
     // Decrement health of ships so that they do not stay in play forever
     TimeoutCheck();
@@ -60,7 +68,7 @@ function serverLoop() {
     if(Ships.find().fetch().length > 0) {
       EnemiesShoot();
     }
-  }).run();
+  //}).run();
 }
 
 
@@ -76,14 +84,15 @@ function TimeoutCheck() {
 }
 
 //// ENEMIES ////
-setInterval(spawnEnemies, spawnEnemyInterval);
+Meteor.setInterval(spawnEnemies, spawnEnemyInterval);
 
 function spawnEnemies() {
-  Fiber(function() {
+  //Fiber(function() {
     var x_spawn = Math.floor(Math.random() * (spawnBound_xMax - spawnBound_xMin + 1)) + spawnBound_xMin;
     var y_spawn = Math.floor(Math.random() * (spawnBound_yMax - spawnBound_yMin + 1)) + spawnBound_yMin;
-    Enemies.insert({x: x_spawn, y: y_spawn, x_vel: x_rand, y_vel: y_rand, health: 50, timeout: 200, radius: 5});
-  }).run();
+    var enemySpeed = Math.floor(Math.random() * (enemySpeed_max - enemySpeed_min + 1)) + enemySpeed_min;
+    Enemies.insert({x: x_spawn, y: y_spawn, x_vel: x_rand, y_vel: y_rand, health: 50, timeout: 200, radius: enemyRadius, speed: enemySpeed});
+  //}).run();
 }
 
 function EnemiesMove() {
@@ -91,7 +100,7 @@ function EnemiesMove() {
   for(var i = 0; i < allEnemies.length; i++) {
     var keepMoving = Math.floor(Math.random() * 6);
     if(keepMoving === 1) {  // 1 in 5 chance of recalculating random movement vector
-      Enemies.update(allEnemies[i]._id, {$inc: {x_vel: x_rand, y_vel: y_rand}});
+      Enemies.update(allEnemies[i]._id, {$inc: {x_vel: (x_rand * allEnemies[i].speed), y_vel: (y_rand * allEnemies[i].speed)}});
     }
     Enemies.update(allEnemies[i]._id, {$inc: {x: allEnemies[i].x_vel, y: allEnemies[i].y_vel}});
   }
@@ -102,8 +111,7 @@ function EnemiesShoot() {
   for(var i = 0; i < allEnemies.length; i++) {
     var fireChance = Math.floor(Math.random() * 7);
     if(fireChance === 1) {  // 1 in 6 chance of firing
-      fireBullet("enemy", [(allEnemies[i].x - 6),(allEnemies[i].y)], [-4,(Math.random()*2 - 1)], 5);
-      console.log("**Bullets Fired** Number of enemies: " + allEnemies.length);
+      fireBullet("enemy", [(allEnemies[i].x - 6),(allEnemies[i].y)], [-1 * enemyBulletSpeed,(Math.random()*2 - 1) * enemyBulletSpread], 5);
     }
   }
 }
