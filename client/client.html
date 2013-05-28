@@ -4,6 +4,7 @@
 
 <body>
   {{> bullets}}
+  {{> powerups}}
   {{> players}}
   {{> enemies}}
 </body>
@@ -32,7 +33,20 @@
 </template>
 
 <template name="enemy_ship">
-  <div class="enemy_ship" style="left: {{x}}px; top: {{y}}px"></div>
+  <div class="enemy_ship_{{type}}" style="left: {{x}}px; top: {{y}}px"></div>
+</template>
+
+
+<!-- ## POWERUP ELEMENTS ## ->>
+<!-- All Powerups -->
+<template name="powerups">
+  {{#each powerups}}
+    {{> powerup}}
+  {{/each}}
+</template>
+
+<template name="powerup">
+  <div class="powerup {{type}}" style="left: {{x}}px; top: {{y}}px"></div>
 </template>
 
 

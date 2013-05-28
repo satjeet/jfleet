@@ -1,5 +1,5 @@
 //// RUN CONSTANTS ////
-var framerate = 60;  // x frames per second
+var framerate = 12;  // x milliseconds between frames
 var friendlyBulletspeed = 80;
 var playerTimeout = 1200;  // Player timeout in deciseconds
 var playerRadius = 40;
@@ -12,7 +12,7 @@ var windowy = 550;
 var hud = document.getElementById("hud");
 var current_user;
 Meteor.startup(function() {
-  current_user = Ships.insert({name: "Test", x: 0, y: 0, health: 100, radius: playerRadius, timeout: playerTimeout});
+  current_user = Ships.insert({name: "Test", x: 0, y: 0, health: 100, level: 1, radius: playerRadius, timeout: playerTimeout});
   Session.set("current_user", current_user);
 })
 
@@ -26,7 +26,7 @@ var last_y = 0;
 //// MAIN RUN LOOP ////
 var mousePos;
 window.onmousemove = handleMouseMove;
-Meteor.setInterval(run, 100);
+Meteor.setInterval(run, framerate);
 
 
 
@@ -66,8 +66,37 @@ function run() {
 
     // Shoot bullets with mouse clicks
     window.onmousedown = function() {
-      if(Ships.findOne(Session.get("current_user"))) {
-        fireBullet("friendly", [friendlyBulletspeed,0], 15);
+      current_ship = Ships.findOne(Session.get("current_user"));
+      if(current_ship) {
+        // Shooting pattern varies depending on current_user's level
+        switch(current_ship.level) {
+          case 1:
+            fireBullet("friendly", [friendlyBulletspeed,0], 15, 1);
+            break;
+          case 2:
+            fireBullet("friendly", [friendlyBulletspeed,1], 15, 1);
+            fireBullet("friendly", [friendlyBulletspeed,-1], 15, 1);
+            break;
+          case 3:
+            fireBullet("friendly", [friendlyBulletspeed,0], 15, 1);
+            fireBullet("friendly", [friendlyBulletspeed,2], 15, 1);
+            fireBullet("friendly", [friendlyBulletspeed,-2], 15, 1);  
+            break;
+          case 4:
+            fireBullet("friendly power", [friendlyBulletspeed + 20,0], 25, 1);
+            break;
+          case 5:
+            fireBullet("friendly power", [friendlyBulletspeed + 20,1], 25, 1);
+            fireBullet("friendly power", [friendlyBulletspeed + 20,-1], 25, 1);
+            break;
+          case 6: 
+            fireBullet("friendly power", [friendlyBulletspeed + 20,0], 25, 1);
+            fireBullet("friendly power", [friendlyBulletspeed + 20,2], 25, 1);
+            fireBullet("friendly power", [friendlyBulletspeed + 20,-2], 25, 1);
+            break;
+          default:
+            fireBullet("friendly superpower", [friendlyBulletspeed + 40,0], 75, 12);
+        }
       }
     }
   }
@@ -78,9 +107,6 @@ function run() {
 
 
 
-
-
-
 function WriteHealth() {
   allShips = Ships.find().fetch();
   for (var i = 0; i < allShips.length; i++) {
@@ -88,8 +114,8 @@ function WriteHealth() {
   }
 }
 
-function fireBullet(type, velocity, damage) {
-  Bullets.insert({type: type, damage: damage, x: current_x, y: current_y, x_vel: velocity[0], y_vel: velocity[1], radius: 1, timeout: 0});
+function fireBullet(type, velocity, damage, radius) {
+  Bullets.insert({type: type, damage: damage, radius: radius, x: current_x, y: current_y, x_vel: velocity[0], y_vel: velocity[1], timeout: 0});
 }
 
 Template.players.ships = function() {
@@ -102,6 +128,10 @@ Template.enemies.enemy_ships = function() {
 
 Template.bullets.bullets = function() {
   return Bullets.find({});
+}
+
+Template.powerups.powerups = function() {
+  return Powerups.find({});
 }
 
 Template.hud.health = function() {
