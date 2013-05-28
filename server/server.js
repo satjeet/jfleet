@@ -12,7 +12,7 @@ var enemyBulletSpeed = 50;
 var enemyBulletSpread = 12;
 var enemyHealth_big = 300;
 var enemyHealth_small = 50;
-var powerupSpawnRate = 40;
+var powerupSpawnRate = 35;
 var powerupSpeed = 30;
 
 // Spawn boundaries for randomly spawned enemies
