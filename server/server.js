@@ -247,8 +247,8 @@ function spawnEnemies() {
     var y_spawn = Math.floor(Math.random() * (spawnBound_yMax - spawnBound_yMin + 1)) + spawnBound_yMin;
 
     // Spawn two different types of enemies
-    var enemyRoll = Math.floor(Math.random() * 10);
-    if(enemyRoll === 1) {  // 1 in 9 chance of big enemy
+    var enemyRoll = Math.floor(Math.random() * 11);
+    if(enemyRoll === 1) {  // 1 in 10 chance of big enemy
       var enemySpeed = Math.floor(Math.random() * ((enemySpeed_max / 2) - enemySpeed_min + 1)) + enemySpeed_min;
       Enemies.insert({type: 2, x: x_spawn, y: y_spawn, x_vel: x_rand, y_vel: y_rand, health: enemyHealth_big, timeout: 200, radius: enemyRadius_big, speed: enemySpeed});
     }
