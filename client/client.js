@@ -2,10 +2,10 @@
 var framerate = 60;  // x frames per second
 var friendlyBulletspeed = 80;
 var playerTimeout = 1200;  // Player timeout in deciseconds
-var playerRadius = 50;
+var playerRadius = 40;
 
 var windowx = 1000;
-var windowy = 600;
+var windowy = 550;
 
 
 //// INITIALIZERS ////
@@ -60,8 +60,7 @@ function run() {
     last_x = current_x;
     last_y = current_y;
 
-    UpdateBullets();
-    CheckCollisions();
+    
 
     //WriteHealth();
 
@@ -77,58 +76,10 @@ function run() {
   }
 }
 
-function UpdateBullets() {
-  allBullets = Bullets.find().fetch();
-  for(var i = 0; i < allBullets.length; i++) {
-    var x_delta = allBullets[i].x_vel;
-    var y_delta = allBullets[i].y_vel;
-    Bullets.update(allBullets[i]._id, {$inc: {x: x_delta, y: y_delta}});
-  }
-}
 
 
-function distance(x,y) {
-  return Math.sqrt(square(x.x - y.x) + square(x.y - y.y));
-}
 
-function square(x) {
-  return x*x;
-}
 
-// Checks if a collides with b
-function collide(a,b) {
-  var dist = distance(a,b) - a.radius - b.radius;
-  if(dist <= 0) {
-    return true;
-  }
-  else {
-    return false;
-  }
-}
-
-// Check all collisions for elements in play
-function CheckCollisions() {
-  allBullets = Bullets.find().fetch();
-  allEnemies = Enemies.find().fetch();
-  allShips = Ships.find().fetch();
-  for(var i = 0; i < allBullets.length; i++) {
-    for(var j = 0; j < allEnemies.length; j++) {
-      if(collide(allBullets[i],allEnemies[j]) && allBullets[i].type === "friendly") {
-        bulletContact(allBullets[i].x, allBullets[i].y);
-        Enemies.update(allEnemies[j]._id, {$inc: {health: (-1 * allBullets[i].damage)}});
-        Bullets.remove(allBullets[i]._id);
-        //Ships.update(Session.get("current_user"), {$inc: {health: 5}});
-      }
-    }
-    for(var k = 0; k < allShips.length; k++) {
-      if(collide(allBullets[i],allShips[k]) && allBullets[i].type === "enemy") {
-        bulletContact(allBullets[i].x, allBullets[i].y);
-        Ships.update(allShips[k]._id, {$inc: {health: (-1 * allBullets[i].damage)}});
-        Bullets.remove(allBullets[i]._id);
-      }
-    }
-  }
-}
 
 function WriteHealth() {
   allShips = Ships.find().fetch();
@@ -138,11 +89,7 @@ function WriteHealth() {
 }
 
 function fireBullet(type, velocity, damage) {
-  Bullets.insert({type: type, damage: damage, x: current_x, y: current_y, x_vel: velocity[0], y_vel: velocity[1], radius: 1});
-}
-
-function bulletContact(x,y) {
-  Bullets.insert({type: "hit", damage: 0, x: x, y: y});
+  Bullets.insert({type: type, damage: damage, x: current_x, y: current_y, x_vel: velocity[0], y_vel: velocity[1], radius: 1, timeout: 0});
 }
 
 Template.players.ships = function() {

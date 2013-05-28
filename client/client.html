@@ -3,11 +3,11 @@
 </head>
 
 <body>
-  <div id="hud"></div>
   {{> bullets}}
   {{> players}}
   {{> enemies}}
 </body>
+
 
 <!-- ## FRIENDLY SHIP ELEMENTS ## -->
 <!-- All Players -->
@@ -19,8 +19,7 @@
 
 <!-- Each player's ship -->
 <template name="ship">
-  <div class="hud health">{{name}}: {{health}}</div>
-  <div class="ship" style="left: {{x}}px; top: {{y}}px"></div>
+  <div class="ship" style="left: {{x}}px; top: {{y}}px"><div class="hud health" style="width: {{health}}px"></div></div>
 </template>
 
 
