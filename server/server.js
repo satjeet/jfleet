@@ -1,16 +1,19 @@
 //// CONTSANTS & DEFINITIONS ////
 Fiber = Npm.require("fibers");
 
+// Play constants
 var serverInterval = 100;  // Server run loop interval in milliseconds
-var spawnEnemyInterval = 1500;
+var enemySpawnIntervalBase = 800;
 var enemySpeed_min = 1;
 var enemySpeed_max = 15;
 var enemyRadius_big = 100;
 var enemyRadius_small = 50;
 var enemyBulletSpeed = 50;
 var enemyBulletSpread = 12;
-var powerupSpawnRate = 100;
-var powerupSpeed = 40;
+var enemyHealth_big = 300;
+var enemyHealth_small = 50;
+var powerupSpawnRate = 40;
+var powerupSpeed = 30;
 
 // Spawn boundaries for randomly spawned enemies
 // Playing field is 1000x550
@@ -32,6 +35,9 @@ function calculateRandomVelocity() {
   y_rand = Math.random()*2 - 1;
 }
 
+// Calculates spawn interval
+var spawnInterval = enemySpawnIntervalBase; // This value changes via random function
+Meteor.setInterval(spawnEnemies, spawnInterval);
 
 
 //// PUBLISH TO THE CLIENT ////
@@ -230,7 +236,11 @@ function bulletContact(x,y) {
 
 
 //// ENEMIES ////
-Meteor.setInterval(spawnEnemies, spawnEnemyInterval);
+function CalculateEnemySpawnInterval() {
+  var randomAdd = Math.floor(Math.random() * ((1000 - 0 + 1)) + 0);
+  spawnInterval = enemySpawnIntervalBase + randomAdd;
+  console.log("CalculateEnemySpawnInterval: " + spawnInterval);
+}
 
 function spawnEnemies() {
   //Fiber(function() {
@@ -241,12 +251,14 @@ function spawnEnemies() {
     var enemyRoll = Math.floor(Math.random() * 9);
     if(enemyRoll === 1) {  // 1 in 8 chance of big enemy
       var enemySpeed = Math.floor(Math.random() * ((enemySpeed_max / 2) - enemySpeed_min + 1)) + enemySpeed_min;
-      Enemies.insert({type: 2, x: x_spawn, y: y_spawn, x_vel: x_rand, y_vel: y_rand, health: 200, timeout: 200, radius: enemyRadius_big, speed: enemySpeed});
+      Enemies.insert({type: 2, x: x_spawn, y: y_spawn, x_vel: x_rand, y_vel: y_rand, health: enemyHealth_big, timeout: 200, radius: enemyRadius_big, speed: enemySpeed});
     }
     else {
       var enemySpeed = Math.floor(Math.random() * (enemySpeed_max - enemySpeed_min + 1)) + enemySpeed_min;
-      Enemies.insert({type: 1, x: x_spawn, y: y_spawn, x_vel: x_rand, y_vel: y_rand, health: 50, timeout: 200, radius: enemyRadius_small, speed: enemySpeed});
+      Enemies.insert({type: 1, x: x_spawn, y: y_spawn, x_vel: x_rand, y_vel: y_rand, health: enemyHealth_small, timeout: 200, radius: enemyRadius_small, speed: enemySpeed});
     }
+
+    CalculateEnemySpawnInterval(); // Calculates new random spawn interval
   //}).run();
 }
 
@@ -264,7 +276,14 @@ function EnemiesMove() {
 function EnemiesShoot() {
   var allEnemies = Enemies.find().fetch();
   for(var i = 0; i < allEnemies.length; i++) {
-    var fireChance = Math.floor(Math.random() * 9);
+    var fireChance;
+    if(allEnemies[i].type === 1) {
+      fireChance = Math.floor(Math.random() * 9);
+    }
+    else {
+      fireChance = Math.floor(Math.random() * 4);
+    }
+
     if(fireChance === 1) {  // 1 in 8 chance of firing
       fireBullet("enemy", [(allEnemies[i].x - 6),(allEnemies[i].y)], [-1 * enemyBulletSpeed,(Math.random()*2 - 1) * enemyBulletSpread], 5, 1);
     }

@@ -74,25 +74,25 @@ function run() {
             fireBullet("friendly", [friendlyBulletspeed,0], 15, 1);
             break;
           case 2:
-            fireBullet("friendly", [friendlyBulletspeed,1], 15, 1);
-            fireBullet("friendly", [friendlyBulletspeed,-1], 15, 1);
+            fireBullet("friendly", [friendlyBulletspeed,2], 15, 1);
+            fireBullet("friendly", [friendlyBulletspeed,-2], 15, 1);
             break;
           case 3:
             fireBullet("friendly", [friendlyBulletspeed,0], 15, 1);
-            fireBullet("friendly", [friendlyBulletspeed,2], 15, 1);
-            fireBullet("friendly", [friendlyBulletspeed,-2], 15, 1);  
+            fireBullet("friendly", [friendlyBulletspeed,4], 15, 1);
+            fireBullet("friendly", [friendlyBulletspeed,-4], 15, 1);  
             break;
           case 4:
-            fireBullet("friendly power", [friendlyBulletspeed + 20,0], 25, 1);
+            fireBullet("friendly power", [friendlyBulletspeed + 25,0], 30, 1);
             break;
           case 5:
-            fireBullet("friendly power", [friendlyBulletspeed + 20,1], 25, 1);
-            fireBullet("friendly power", [friendlyBulletspeed + 20,-1], 25, 1);
+            fireBullet("friendly power", [friendlyBulletspeed + 25,2], 30, 1);
+            fireBullet("friendly power", [friendlyBulletspeed + 25,-2], 30, 1);
             break;
           case 6: 
-            fireBullet("friendly power", [friendlyBulletspeed + 20,0], 25, 1);
-            fireBullet("friendly power", [friendlyBulletspeed + 20,2], 25, 1);
-            fireBullet("friendly power", [friendlyBulletspeed + 20,-2], 25, 1);
+            fireBullet("friendly power", [friendlyBulletspeed + 25,0], 30, 1);
+            fireBullet("friendly power", [friendlyBulletspeed + 25,2], 30, 1);
+            fireBullet("friendly power", [friendlyBulletspeed + 25,-2], 30, 1);
             break;
           default:
             fireBullet("friendly superpower", [friendlyBulletspeed + 40,0], 75, 12);
