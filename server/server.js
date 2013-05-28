@@ -239,7 +239,6 @@ function bulletContact(x,y) {
 function CalculateEnemySpawnInterval() {
   var randomAdd = Math.floor(Math.random() * ((1000 - 0 + 1)) + 0);
   spawnInterval = enemySpawnIntervalBase + randomAdd;
-  console.log("CalculateEnemySpawnInterval: " + spawnInterval);
 }
 
 function spawnEnemies() {
@@ -248,8 +247,8 @@ function spawnEnemies() {
     var y_spawn = Math.floor(Math.random() * (spawnBound_yMax - spawnBound_yMin + 1)) + spawnBound_yMin;
 
     // Spawn two different types of enemies
-    var enemyRoll = Math.floor(Math.random() * 9);
-    if(enemyRoll === 1) {  // 1 in 8 chance of big enemy
+    var enemyRoll = Math.floor(Math.random() * 10);
+    if(enemyRoll === 1) {  // 1 in 9 chance of big enemy
       var enemySpeed = Math.floor(Math.random() * ((enemySpeed_max / 2) - enemySpeed_min + 1)) + enemySpeed_min;
       Enemies.insert({type: 2, x: x_spawn, y: y_spawn, x_vel: x_rand, y_vel: y_rand, health: enemyHealth_big, timeout: 200, radius: enemyRadius_big, speed: enemySpeed});
     }
@@ -278,13 +277,13 @@ function EnemiesShoot() {
   for(var i = 0; i < allEnemies.length; i++) {
     var fireChance;
     if(allEnemies[i].type === 1) {
-      fireChance = Math.floor(Math.random() * 9);
+      fireChance = Math.floor(Math.random() * 9);  // 1 in 8 chance of firing
     }
     else {
-      fireChance = Math.floor(Math.random() * 4);
+      fireChance = Math.floor(Math.random() * 5);  // 1 in 4 chance of firing
     }
 
-    if(fireChance === 1) {  // 1 in 8 chance of firing
+    if(fireChance === 1) { 
       fireBullet("enemy", [(allEnemies[i].x - 6),(allEnemies[i].y)], [-1 * enemyBulletSpeed,(Math.random()*2 - 1) * enemyBulletSpread], 5, 1);
     }
   }
